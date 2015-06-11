@@ -16,7 +16,7 @@ RELOAD = false
 LBPD   = false
 EPBP   = false
 FEPBP  = false
-PBP    = true
+PBP    = false
 #
 expname = "demoIsing"
 if ~isdir(expname)
@@ -228,7 +228,7 @@ for N_index in 1:length(Nlist)
 			_start_pbp = time()
             println("PBP sim ($expname::$N) [run::$run]")
             # 
-            sampleMHP(old) = old[:]+rand(MHProposal,N)
+            sampleMHP(old) = old+rand(MHProposal,N)' # (size 1,N)
             # 
 			# > pre-allocation of storage space
 			global particles   = zeros(nnodes,N)
@@ -236,8 +236,8 @@ for N_index in 1:length(Nlist)
 			global messages    = zeros(2*nedges,N)
 			#
 			for node=1:nnodes
-				node_p = obs_values[node]+sinit*randn(1,N)
-				bel_p  = eval_node_pot(node,node_p)
+				node_p 			  = obs_values[node]+sinit*randn(1,N)
+				bel_p  			  = eval_node_pot(node,node_p)
 				particles[node,:] = node_p
 				b_evals[node,:]   = bel_p/sum(bel_p)
 			end
