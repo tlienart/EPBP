@@ -12,11 +12,11 @@ include("lib_epbp.jl")
 include("lib_lbpd.jl")
 include("lib_pbp.jl")
 #
-RELOAD = false
-LBPD   = false
-EPBP   = false
-FEPBP  = false
-PBP    = false
+RELOAD = true
+LBPD   = true
+EPBP   = true
+FEPBP  = true
+PBP    = true
 #
 expname = "demoIsing"
 if ~isdir(expname)
@@ -25,7 +25,7 @@ end
 #
 # SIMULATION PARAMETERS
 #
-Nlist	= [100]		# number of particles per node [!USER!]
+Nlist	= [50]		# number of particles per node [!USER!]
 Clist 	= [10]		# number of components for FEPBP [!USER!]
 Ninteg  = 30		# number of integration points for EP proj
 Ngrid   = 200		# number of points in the discretization
@@ -54,6 +54,8 @@ HOMOG_EDGE_POT = true # if edge pot is the same everywhere
 #
 eval_edge_pot(from,to,xfrom,xto) = pdf(edge_potential,xfrom-xto)
 eval_node_pot(node,xnode)        = pdf(node_potential,obs_values[node]-xnode)
+#
+sampleMHP(old) = old+rand(MHProposal,N)'
 #	
 # > initial values [!USER!]
 orig_values = zeros(nnodes,1) + 2
@@ -228,15 +230,13 @@ for N_index in 1:length(Nlist)
 			_start_pbp = time()
             println("PBP sim ($expname::$N) [run::$run]")
             # 
-            sampleMHP(old) = old+rand(MHProposal,N)' # (size 1,N)
-            # 
 			# > pre-allocation of storage space
 			global particles   = zeros(nnodes,N)
 			global b_evals     = zeros(nnodes,N)
-			global messages    = zeros(2*nedges,N)
+			global messages    = ones(2*nedges,N)
 			#
 			for node=1:nnodes
-				node_p 			  = obs_values[node]+sinit*randn(1,N)
+				node_p 			  = obs_values[node]+s_init*randn(1,N)
 				bel_p  			  = eval_node_pot(node,node_p)
 				particles[node,:] = node_p
 				b_evals[node,:]   = bel_p/sum(bel_p)
@@ -256,8 +256,7 @@ for N_index in 1:length(Nlist)
 			_start_pbp_estbel = time()
 			pbp_est_beliefs   = zeros(nnodes,Ngrid)
 			for node = 1:nnodes
-				t1,t2  = pbp_eval_belief(node,grid)
-				pbp_est_beliefs[node,:] = t2
+				pbp_est_beliefs[node,:] = pbp_eval_belief(node,grid)
 			end
 			println(" [done in ",get_time(_start_pbp_estbel),"s]")
 			#
