@@ -11,12 +11,14 @@ include("lib_support.jl")
 include("lib_epbp.jl")
 include("lib_lbpd.jl")
 include("lib_pbp.jl")
+include("lib_ep.jl")
 #
-RELOAD = true
-LBPD   = true
-EPBP   = true
-FEPBP  = true
-PBP    = true
+RELOAD = false
+LBPD   = false
+EPBP   = false
+FEPBP  = false
+PBP    = false
+EP 	   = true
 #
 expname = "demoIsing"
 if ~isdir(expname)
@@ -25,12 +27,13 @@ end
 #
 # SIMULATION PARAMETERS
 #
-Nlist	= [50]		# number of particles per node [!USER!]
-Clist 	= [10]		# number of components for FEPBP [!USER!]
-Ninteg  = 30		# number of integration points for EP proj
-Ngrid   = 200		# number of points in the discretization
-nloops  = 10 		# number of loops through scheduling [!USER!]
-nruns   = 1  		# number of time we run the whole thing [!USER!]
+Nlist	 = [50]		# number of particles per node [!USER!]
+Clist 	 = [10]		# number of components for FEPBP [!USER!]
+Ninteg   = 30		# number of integration points for EP proj
+Ngrid    = 200		# number of points in the discretization
+nloops   = 10 		# number of loops through scheduling [!USER!]
+nEPloops = 30 		# number of EP iterations
+nruns    = 1  		# number of time we run the whole thing [!USER!]
 #
 MHIter 	   = 20
 MHProposal = Normal(0,.1)
@@ -266,3 +269,29 @@ for N_index in 1:length(Nlist)
 		end
 	end
 end
+
+if EP 
+	_start_ep = time()
+    println("EP sim ...")
+    #
+	global eta_moments = zeros(2*nedges,2)
+	global q_moments   = zeros(nnodes,2)
+	#
+	for node=1:nnodes
+		q_moments[node,:] = [obs_values[node] s_init]
+	end
+	for loop=1:nEPloops
+		print(">loop ",loop)
+		_start_loop = time()
+		old_moms 	= copy(q_moments)
+		for i=1:length(scheduling)
+			ep_node_update(scheduling[i])
+		end
+		println(" [completed in ",get_time(_start_loop),"s; raw diff ",
+					round(norm(q_moments-old_moms),3),"]")
+	end
+    #
+    println("EP completed in ",get_time(_start_ep),"s.")
+end
+
+

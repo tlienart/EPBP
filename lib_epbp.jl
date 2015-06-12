@@ -1,9 +1,4 @@
 #
-# additional support functions
-#
-get_edge_weights(from,to) = e_weights[get_edge_idx(from,to),:]
-get_edge_eta(from,to)     = eta_moments[get_edge_idx(from,to),:]
-#
 # --------------------------------------------------------
 #
 # EPBP_NODE_UPDATE(NODE):

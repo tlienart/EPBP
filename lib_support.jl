@@ -18,7 +18,9 @@ normal_prod(M1,M2) = [ (M2[2]^2*M1[1]+M1[2]^2*M2[1])/(M2[2]^2+M1[2]^2),
 # > GET_NEIGHBORS: list of index of neighbors
 get_neighbors(node) = edge_list[edge_list[:,1].==node,2]
 # > GET_EDGE_IDX: returns bool vector corresponding to extraction of edge info
-get_edge_idx(from,to) = (edge_list[:,1].==from) .* (edge_list[:,2].==to)
+get_edge_idx(from,to) 	  = (edge_list[:,1].==from) .* (edge_list[:,2].==to)
+get_edge_weights(from,to) = e_weights[get_edge_idx(from,to),:]
+get_edge_eta(from,to)     = eta_moments[get_edge_idx(from,to),:]
 # > GET_TIME: return the time since last time flag rounded to 3 decimals
 get_time(_flag) = round(time()-_flag,3)
 #
