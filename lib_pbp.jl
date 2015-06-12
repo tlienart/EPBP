@@ -12,7 +12,7 @@ get_message(from,to) = messages[get_edge_idx(from,to),:]
 #
 function pbp_node_update(node)
     #
-    neighbors = node_info(node)
+    neighbors = get_neighbors(node)
     K         = length(neighbors)
     #
     # STEP 1(A): sample from proposal
@@ -29,13 +29,13 @@ function pbp_node_update(node)
         alpha  = cur_belief./old_belief
         accept = rand(1,N).<alpha
         #
-        node_p[1,accept[:]]     = cand_p[accept[:]]
-        old_belief[1,accept[:]] = cur_belief[accept]
+        node_p[accept]     = cand_p[accept]
+        old_belief[accept] = cur_belief[accept]
         #
     end
-    old_belief           /= sum(old_belief)
-    pbp_particles[node,:] = node_p
-    pbp_beliefs[node,:]   = old_belief
+    old_belief       /= sum(old_belief)
+    particles[node,:] = node_p
+    b_evals[node,:]   = old_belief
     #
     # STEP 1(B): evaluate incoming messages at new points
     #
@@ -45,7 +45,7 @@ function pbp_node_update(node)
         mess     = zeros(1,N)
         #
         for j=1:N # incoming message
-            tmp     = eval_edge_pot(node,neighb,node_p[j],neighb_p)
+            tmp     = eval_edge_pot(neighb,node,neighb_p,node_p[j])
             tmp   .*= eval_node_pot(neighb,neighb_p)
             tmp   ./= get_message(node,neighb)
             mess[j] = sum(tmp)
@@ -63,13 +63,45 @@ function pbp_node_update(node)
         mess     = zeros(1,N)
         #
         for j=1:N
-            tmp     = eval_edge_pot(neighb,node,neighb_p[j],node_p)
+            tmp     = eval_edge_pot(node,neighb,node_p,neighb_p[j])
             tmp   .*= eval_node_pot(node,node_p)
             tmp   ./= get_message(neighb,node)
             mess[j] = sum(tmp)
         end
         mess /= sum(mess)
         # store
-        messages[get_edge_idx,:] = mess
+        messages[get_edge_idx(node,neighb),:] = mess
     end
+end
+#
+# --------------------------------------------------------
+#
+# PBP_EVAL_BELIEF(NODE,EVAL_POINTS):
+#   Evaluate the current estimator of the beliefs at
+#   a given node and for given points.
+#   For that, all the incoming messages are evaluated
+#   and the product is taken.
+#
+function pbp_eval_belief(node,eval_points)
+    #
+    neighbors = get_neighbors(node)
+    K,M       = length(neighbors),length(eval_points)
+    #
+    cur_belief = eval_node_pot(node,eval_points) # (size 1,M)
+    #
+    for k = 1:K
+        neighb   = neighbors[k]
+        neighb_p = particles[neighb,:]
+        mess     = zeros(1,M) # incoming message (size 1,M)
+        for j=1:M
+            tmp     = eval_edge_pot(neighb,node,neighb_p,eval_points[j])
+            tmp   .*= eval_node_pot(neighb,neighb_p)
+            tmp   ./= get_message(node,neighb)
+            mess[j] = sum(tmp)
+        end
+        mess        /= sum(mess)
+        cur_belief .*= mess
+    end
+    cur_belief /= sum(cur_belief)
+    return cur_belief
 end
