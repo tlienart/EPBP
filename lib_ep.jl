@@ -3,9 +3,32 @@
 #   Update of a node following LBP on discretized grid.
 #
 function ep_node_update(node)
+	#
+	# STEP 1: EP NODE POT PROJECTION
+	#
+	node_cav = q_moments[node,:]
+	eta_node = get_node_eta(node)
+	if bool(prod(eta_node))
+		node_cav = normal_div(node_cav,eta_node)
+	end
+	node_cav_distr = Normal(node_cav[1],node_cav[2])
+	eval_grid      = zeros(1,Ninteg)
+	for i=1:Ninteg
+		xi=integ_pts[i]
+		eval_grid[i] = pdf(node_cav_distr,xi) * eval_node_pot(node,xi)
+	end
+	node_marg = eval_grid/sum(eval_grid)
+	mom_node_marg = params(fit_mle(Normal,integ_pts,node_marg))
+	if mom_node_marg[2] < node_cav[2]
+		new_eta_node 			 = normal_div(mom_node_marg,node_cav)
+		q_moments[node,:] 		 = normal_prod(node_cav,new_eta_node)
+		eta_node_moments[node,:] = [new_eta_node[1] new_eta_node[2]]
+	end
+	#
+	# STEP 2: EP EDGE POT PROJECTION 
+	#
 	neighbors = get_neighbors(node)
 	K  		  = length(neighbors)
-	#
 	for k=1:K
 		neighb 	= neighbors[k]
 		# cavity distr

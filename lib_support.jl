@@ -21,6 +21,7 @@ get_neighbors(node) = edge_list[edge_list[:,1].==node,2]
 get_edge_idx(from,to) 	  = (edge_list[:,1].==from) .* (edge_list[:,2].==to)
 get_edge_weights(from,to) = e_weights[get_edge_idx(from,to),:]
 get_edge_eta(from,to)     = eta_moments[get_edge_idx(from,to),:]
+get_node_eta(node) 		  = eta_node_moments[node,:]
 # > GET_TIME: return the time since last time flag rounded to 3 decimals
 get_time(_flag) = round(time()-_flag,3)
 #

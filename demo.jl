@@ -13,9 +13,9 @@ include("lib_lbpd.jl")
 include("lib_pbp.jl")
 include("lib_ep.jl")
 #
-RELOAD = false
+RELOAD = true
 LBPD   = false
-EPBP   = false
+EPBP   = true
 FEPBP  = false
 PBP    = false
 EP 	   = true
@@ -274,8 +274,9 @@ if EP
 	_start_ep = time()
     println("EP sim ...")
     #
-	global eta_moments = zeros(2*nedges,2)
-	global q_moments   = zeros(nnodes,2)
+	global eta_moments 		= zeros(2*nedges,2)
+	global eta_node_moments	= zeros(nnodes,2)
+	global q_moments   		= zeros(nnodes,2)
 	#
 	for node=1:nnodes
 		q_moments[node,:] = [obs_values[node] s_init]
