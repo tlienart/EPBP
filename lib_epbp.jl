@@ -12,7 +12,7 @@ function epbp_node_update(node,fastmode=false)
     #   >> sample points at node from current proposal
     #
     # > sample (Normal)
-    node_p = q_moments[node,1] + q_moments[node,2] * randn(1,N) # size (1,N)
+    node_p = q_moments[node,1] + q_moments[node,2] * randn(1,N) # size (1,N) <!DEV!> should be generalized
     # > store
     particles[node,:] = node_p # size (1,N)
     #
@@ -33,7 +33,7 @@ function epbp_node_update(node,fastmode=false)
     for k=1:K
         neighb   = neighbors[k]
         # > M_uv = B_u/m_vu = for outmess m_uv
-        tmp_e_w  = belief_weights./inmess_eval[k,:]  
+        tmp_e_w  = belief_weights./inmess_eval[k,:]
         # > normalize to avoid under/over - flow
         tmp_e_w /= sum(tmp_e_w)
         # > store
@@ -42,30 +42,61 @@ function epbp_node_update(node,fastmode=false)
     #
     # STEP 4a: EP PROJECTION - PtA (node)
     #
-    # 
+    node_cavity = q_moments[node,:]
+    eta_node    = get_node_eta(node)
+    if eta_node[2]>node_cavity[2]
+        node_cavity = normal_div(node_cavity,eta_node)
+    end
+    node_eval   = eval_node_pot(node,integ_pts) # <!DEV!> could be recycled from epbp_belief comp
+    #
+    if EP_PROJ_MLE
+        new_eta_node = params(fit_mle(Normal,integ_pts,node_eval))
+        tmp_m        = normal_prod(new_eta_node,node_cavity)
+        q_moments[node,:] = tmp_m
+        eta_node_moments[node,:] = [m for m in new_eta_node]
+    else
+        try
+            # <!DEV!> generalize (expoF)
+            tilted_eval       = node_eval .* pdf(Normal(node_cavity[1],node_cavity[2]),integ_pts)
+            tilted_node       = params(fit_mle(Normal,integ_pts,tilted_eval))
+            new_eta_node      = normal_div(tilted_node,node_cavity)
+            tmp_m             = normal_prod(new_eta_node,node_cavity)
+            q_moments[node,:] = tmp_m
+            # > store new eta
+            eta_node_moments[node,:] = [m for m in new_eta_node]
+        end
+    end
+    #
     # STEP 4b: EP PROJECTION - PtB (node)
     #
-    M            = length(integ_pts)
-    outmess_eval = zeros(K,M)
-    #
     for k=1:K
-        neighb   = neighbors[k]
-        cavity   = q_moments[neighb,:]
-        eta_out  = get_edge_eta(node,neighb)
-        prev_mom = cavity
+        neighb        = neighbors[k]
+        neighb_cavity = q_moments[neighb,:]
+        eta_out       = get_edge_eta(node,neighb)
+        prev_mom      = neighb_cavity
         if bool(prod(eta_out)) # initially they're set to 0
-            cavity = normal_div(cavity,eta_out) # this should always be ok
+            neighb_cavity = normal_div(neighb_cavity,eta_out) # this should always be ok
         end
-        outmess_eval_tp = epbp_eval_message(node,neighb,integ_pts)
+        outmess_eval = epbp_eval_message(node,neighb,integ_pts)
         #
-        # here: hack, using MLE (should not)
-        #
-        eta_out_new         = params(fit_mle(Normal,integ_pts,outmess_eval_tp))
-        eidx                = get_edge_idx(node,neighb)
-        q_moments[neighb,:] = normal_prod(cavity,eta_out_new)
-        # > store new eta
-        eta_moments[eidx,:] = [m for m in eta_out_new]
-        #
+        if EP_PROJ_MLE
+            eta_out_new         = params(fit_mle(Normal,integ_pts,outmess_eval))
+            q_moments[neighb,:] = normal_prod(neighb_cavity,eta_out_new)
+            # > store new eta
+            eidx                = get_edge_idx(node,neighb)
+            eta_moments[eidx,:] = [m for m in eta_out_new]
+        else
+            try
+                tilted_eval = outmess_eval .*
+                                pdf(Normal(neighb_cavity[1],neighb_cavity[2]),integ_pts)
+                tilted_edge = params(fit_mle(Normal,integ_pts,tilted_eval))
+                eta_out_new = normal_div(tilted_edge,neighb_cavity)
+                tmp_m       = normal_prod(eta_out_new,neighb_cavity)
+                q_moments[neighb,:] = tmp_m
+                # > store new eta
+                eta_moments[eidx,:] = [m for m in eta_out_new]
+            end
+        end
     end
 end
 #
@@ -119,7 +150,7 @@ function epbp_eval_message(from,to,eval_points,fastmode=false)
                 i           += 1
             end
         end
-        for comp=1:C 
+        for comp=1:C
             message_eval += eval_edge_pot(from,to,from_p[comp_idx[comp]],eval_points)
         end
     else

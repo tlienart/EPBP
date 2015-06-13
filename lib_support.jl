@@ -10,10 +10,10 @@ using Distributions  # cf. http://distributionsjl.readthedocs.org/
 # QUICK FUNCTIONS
 #
 # > NORMALDIV: divide two 1D normals given M1=[mu1 s1] M2=[mu2 s2]
-normal_div(M1,M2) = [ (M2[2]^2*M1[1]-M1[2]^2*M2[1])/(M2[2]^2-M1[2]^2), 
+normal_div(M1,M2) = [ (M2[2]^2*M1[1]-M1[2]^2*M2[1])/(M2[2]^2-M1[2]^2),
 						M1[2]*M2[2]/sqrt(M2[2]^2-M1[2]^2) ]
 # > NORMALPROD: multiply two 1D normals
-normal_prod(M1,M2) = [ (M2[2]^2*M1[1]+M1[2]^2*M2[1])/(M2[2]^2+M1[2]^2), 
+normal_prod(M1,M2) = [ (M2[2]^2*M1[1]+M1[2]^2*M2[1])/(M2[2]^2+M1[2]^2),
 						 M1[2]*M2[2]/sqrt(M2[2]^2+M1[2]^2) ]
 # > GET_NEIGHBORS: list of index of neighbors
 get_neighbors(node) = edge_list[edge_list[:,1].==node,2]
@@ -27,7 +27,7 @@ get_time(_flag) = round(time()-_flag,3)
 #
 # -------------------------------------------------------------------------------------------------
 #
-# GM_GRID(M,N): 
+# GM_GRID(M,N):
 # 	Declare an m*n regular grid
 #
 function gm_grid(m,n)
