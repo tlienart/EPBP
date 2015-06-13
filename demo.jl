@@ -1,4 +1,4 @@
-EP_PROJ_MLE  = true
+EP_PROJ_MLE  = false
 #
 # Accomodates: 1D, Normal approx (2 moments)
 # > should be flexible wrt these params in future
@@ -15,10 +15,10 @@ include("lib_pbp.jl")
 include("lib_ep.jl")
 include("lib_doSim.jl")
 #
-RELOAD = false  # re-generate everything
+RELOAD = true  # re-generate everything
 LBPD   = false  # LBP on determinstic grid
 EPBP   = true   # EPBP
-FEPBP  = true  # Fast-EPBP
+FEPBP  = false  # Fast-EPBP
 PBP    = false  # PBP with MH sampling
 EP 	   = false  # straight EP
 #
@@ -93,8 +93,8 @@ end
 for N_index in 1:length(Nlist)
 	global N = Nlist[N_index]
 	global C = Clist[N_index] # for FEPBP
-	#
-	for run = 1:nruns
+    global R
+	for R = 1:nruns
 		if EPBP
 			doEPBP()
 		end

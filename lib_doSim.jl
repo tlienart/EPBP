@@ -40,7 +40,7 @@ end
 
 function doEPBP()
     _start_epbp = time()
-    println("EPBP sim ($expname::$N) [run::$run]")
+    println("EPBP sim ($expname::$N) [run::$R]")
     # > pre-allocation of storage space
     global particles   		= zeros(nnodes,N)
     global b_weights   		= zeros(nnodes,N)
@@ -87,16 +87,16 @@ function doEPBP()
     end
     println(" [done in ",get_time(_start_epbp_estbel),"s]")
     #
-    writecsv("$expname/$expname\_epbp_est_beliefs_np$N\_r$run.dat",epbp_est_beliefs)
-    writecsv("$expname/$expname\_epbp_particles_np$N\_r$run.dat",	 particles)
-    writecsv("$expname/$expname\_epbp_weights_np$N\_r$run.dat",	 b_weights)
-    writecsv("$expname/$expname\_epbp_evals_np$N\_r$run.dat",		 b_evals)
-    writecsv("$expname/$expname\_epbp_qmom_np$N\_r$run.dat",		 q_moments)
+    writecsv("$expname/$expname\_epbp_est_beliefs_np$N\_r$R.dat",epbp_est_beliefs)
+    writecsv("$expname/$expname\_epbp_particles_np$N\_r$R.dat",	 particles)
+    writecsv("$expname/$expname\_epbp_weights_np$N\_r$R.dat",	 b_weights)
+    writecsv("$expname/$expname\_epbp_evals_np$N\_r$R.dat",		 b_evals)
+    writecsv("$expname/$expname\_epbp_qmom_np$N\_r$R.dat",		 q_moments)
 end
 
 function doFEPBP()
     _start_fepbp = time()
-    println("FEPBP sim ($expname::$N/$C) [run::$run]")
+    println("FEPBP sim ($expname::$N/$C) [run::$R]")
     # > pre-allocation of storage space
     global particles   = zeros(nnodes,N)
     global b_weights   = zeros(nnodes,N)
@@ -142,16 +142,16 @@ function doFEPBP()
     end
     println(" [done in ",get_time(_start_fepbp_estbel),"s]")
     #
-    writecsv("$expname/$expname\_fepbp_est_beliefs_np$N\_nc$C\_r$run.dat",fepbp_est_beliefs)
-    writecsv("$expname/$expname\_fepbp_particles_np$N\_nc$C\_r$run.dat",  particles)
-    writecsv("$expname/$expname\_fepbp_weights_np$N\_nc$C\_r$run.dat",    b_weights)
-    writecsv("$expname/$expname\_fepbp_evals_np$N\_nc$C\_r$run.dat",      b_evals)
-    writecsv("$expname/$expname\_fepbp_qmom_np$N\_nc$C\_r$run.dat",       q_moments)
+    writecsv("$expname/$expname\_fepbp_est_beliefs_np$N\_nc$C\_r$R.dat",fepbp_est_beliefs)
+    writecsv("$expname/$expname\_fepbp_particles_np$N\_nc$C\_r$R.dat",  particles)
+    writecsv("$expname/$expname\_fepbp_weights_np$N\_nc$C\_r$R.dat",    b_weights)
+    writecsv("$expname/$expname\_fepbp_evals_np$N\_nc$C\_r$R.dat",      b_evals)
+    writecsv("$expname/$expname\_fepbp_qmom_np$N\_nc$C\_r$R.dat",       q_moments)
 end
 
 function doPBP()
     _start_pbp = time()
-    println("PBP sim ($expname::$N) [run::$run]")
+    println("PBP sim ($expname::$N) [run::$R]")
     #
     # > pre-allocation of storage space
     global particles   = zeros(nnodes,N)
@@ -183,9 +183,9 @@ function doPBP()
     end
     println(" [done in ",get_time(_start_pbp_estbel),"s]")
     #
-    writecsv("$expname/$expname\_pbp_est_beliefs_np$N\_r$run.dat",pbp_est_beliefs)
-    writecsv("$expname/$expname\_pbp_particles_np$N\_r$run.dat",  particles)
-    writecsv("$expname/$expname\_pbp_evals_np$N\_r$run.dat",      b_evals)
+    writecsv("$expname/$expname\_pbp_est_beliefs_np$N\_r$R.dat",pbp_est_beliefs)
+    writecsv("$expname/$expname\_pbp_particles_np$N\_r$R.dat",  particles)
+    writecsv("$expname/$expname\_pbp_evals_np$N\_r$R.dat",      b_evals)
 end
 
 function doEP()
