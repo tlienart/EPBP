@@ -21,7 +21,7 @@ function doLBPD()
         end
     end
     # > keep init belief, useful for later comp
-    init_beliefs = copy(beliefs)
+    global init_beliefs = copy(beliefs)
     #
     for loop = 1:nloops
         print(">loop: ",loop)

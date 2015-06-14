@@ -27,6 +27,35 @@ get_time(_flag) = round(time()-_flag,3)
 #
 # -------------------------------------------------------------------------------------------------
 #
+# GM_CHAIN(T)
+#	Declare a T chain (HMM)
+#
+function gm_chain(T)
+	nnodes = T
+	nedges = T-1
+	#
+	edge_list = int(ones(2*nedges,2))
+	#
+	edge_list[:,1] = [1:nedges,nedges+1:-1:2]
+	edge_list[:,2] = [2:nedges+1,nedges:-1:1]
+	#
+	return nnodes,nedges,edge_list
+end
+#
+# GM_CHAIN_SCHEDULING
+# 	Declare a standard chain scheduling
+#		> Forward (1->T)
+#		> Backward (T->1)
+#
+function gm_chain_scheduling(T,forwardonly=false)
+	if forwardonly
+		return 1:T
+	else
+		return [1:T,T-1:-1:2]
+	end
+end
+
+#
 # GM_GRID(M,N):
 # 	Declare an m*n regular grid
 #

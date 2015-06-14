@@ -49,7 +49,7 @@ function epbp_node_update(node,fastmode=false)
     end
     node_eval   = eval_node_pot(node,integ_pts) # <!DEV!> could be recycled from epbp_belief comp
     #
-    if EP_PROJ_MLE
+    if EP_PROJ_MLE | DEB_MIX
         new_eta_node = params(fit_mle(Normal,integ_pts,node_eval))
         tmp_m        = normal_prod(new_eta_node,node_cavity)
         q_moments[node,:] = tmp_m
@@ -81,20 +81,23 @@ function epbp_node_update(node,fastmode=false)
         end
         outmess_eval = epbp_eval_message(node,neighb,integ_pts)
         #
+        eidx = get_edge_idx(node,neighb)
+        #
         if EP_PROJ_MLE
             eta_out_new         = params(fit_mle(Normal,integ_pts,outmess_eval))
             q_moments[neighb,:] = normal_prod(neighb_cavity,eta_out_new)
             # > store new eta
-            eidx                = get_edge_idx(node,neighb)
             eta_moments[eidx,:] = [m for m in eta_out_new]
         else
             try
                 tilted_eval = outmess_eval .*
                                 pdf(Normal(neighb_cavity[1],neighb_cavity[2]),integ_pts)
                 tilted_edge = params(fit_mle(Normal,integ_pts,tilted_eval))
+#                println(tilted_edge[2]," -- ",neighb_cavity[2])
                 eta_out_new = normal_div(tilted_edge,neighb_cavity)
-                assert(~isnan(prod(eta_out_new)) & ~isinf(prod(eta_out_new)))
-                assert(eta_out_new[2]>0.1)
+#                println(eta_out_new)
+#                assert(~isnan(prod(eta_out_new)) & ~isinf(prod(eta_out_new)))
+#               assert(eta_out_new[2]>0.1)
                 tmp_m       = normal_prod(eta_out_new,neighb_cavity)
                 q_moments[neighb,:] = tmp_m
                 # > store new eta
@@ -159,7 +162,7 @@ function epbp_eval_message(from,to,eval_points,fastmode=false)
         end
     else
         for i=1:M
-            message_eval[i] += sum(curedge_w.*eval_edge_pot(from,to,eval_points[i],from_p))
+            message_eval[i] += sum(curedge_w.*eval_edge_pot(from,to,from_p,eval_points[i]))
         end
     end
     return message_eval # size (1,M)
