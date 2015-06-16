@@ -1,12 +1,14 @@
-# OBSOLETE
+# LIB_SUPPORT.JL
+#	definition of useful functions used in various places of the project
 #
-# # > TRAPZ: basic integration (for 1D density normalization)
-# trapz(x,y) = dot(diff(x[:]),(y[:][1:end-1] + y[:][2:end])/2);
-
+# 	Code released under the MIT license, see corresponding LICENSE file
+#	(c) 2015, Thibaut Lienart
+#
+# --------------------------------------------------------------------------------------------------
 #
 using Distributions  # cf. http://distributionsjl.readthedocs.org/
 #
-# -------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
 # QUICK FUNCTIONS
 #
 # > NORMALDIV: divide two 1D normals given M1=[mu1 s1] M2=[mu2 s2]
@@ -25,7 +27,7 @@ get_node_eta(node) 		  = eta_node_moments[node,:]
 # > GET_TIME: return the time since last time flag rounded to 3 decimals
 get_time(_flag) = round(time()-_flag,3)
 #
-# -------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
 #
 # GM_CHAIN(T)
 #	Declare a T chain (HMM)

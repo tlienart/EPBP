@@ -1,4 +1,9 @@
 #
+# 	Code released under the MIT license, see corresponding LICENSE file
+#	(c) 2015, Thibaut Lienart
+#
+# --------------------------------------------------------------------------------------------------
+#
 # LBPD_NODE_UPDATE(NODE):
 #   Update of a node following LBP on discretized grid.
 #
@@ -48,7 +53,7 @@ function lbpd_eval_message(from,to)
             tmp   ./= messages[eidx_r,:]  # /m_vu(x_u^:)
             mess[j] = sum(tmp)
         end
-    else 
+    else
         # m_uv(x_v^j) = sum_i psi_uv(x_u^i,x_v^j)B_u(x_u^i)/m_vu(x_u^i)
         for j=1:Ngrid
             tmp     = eval_edge_pot(from,to,grid,grid[j]) # psiuv(x_u^:,x_v^j)

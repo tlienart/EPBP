@@ -1,4 +1,9 @@
 #
+# 	Code released under the MIT license, see corresponding LICENSE file
+#	(c) 2015, Thibaut Lienart
+#
+# --------------------------------------------------------------------------------------------------
+#
 # EP_NODE_UPDATE(NODE):
 #   Update of a node following LBP on discretized grid.
 #
@@ -25,7 +30,7 @@ function ep_node_update(node)
 		eta_node_moments[node,:] = [new_eta_node[1] new_eta_node[2]]
 	end
 	#
-	# STEP 2: EP EDGE POT PROJECTION 
+	# STEP 2: EP EDGE POT PROJECTION
 	#
 	neighbors = get_neighbors(node)
 	K  		  = length(neighbors)
