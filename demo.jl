@@ -11,30 +11,30 @@ include("lib_pbp.jl")
 include("lib_ep.jl")
 include("lib_doSim.jl")
 #
-demoNames = ["demoGrid","demoChain"]
-expname   = demoNames[1] # choice of demo
+demoNames = ["demoGrid","demoChain","demoImg"]
+expname   = demoNames[3] # choice of demo
 #
 # SIMULATIONS TO BE RUN
 #
-RELOAD = true  # re-generate everything
-LBPD   = true  # LBP on deterministic grid
-EPBP   = true  # EPBP
+RELOAD = false  # re-generate everything
+LBPD   = false  # LBP on deterministic grid
+EPBP   = false  # EPBP
 FEPBP  = false # Fast-EPBP
 PBP    = false # PBP with MH sampling
 EP 	   = true  # straight EP
 #
 # EP PROJECTION MODE, default is KL ignoring update if moments not valid.
 #
-EP_PROJ_MLE  = false    # use MLE projection instead of KL-EP
+EP_PROJ_MLE  = true    # use MLE projection instead of KL-EP
 #
 # SIMULATION PARAMETERS [!USER!]
 #
-Nlist	  = [100]	    # (list) number of particles per node
-Clist 	  = [7]		    # (list) number of components for FEPBP, need to be of same dim as NLIST
+Nlist	  = [50]	    # (list) number of particles per node
+Clist 	  = [5]		    # (list) number of components for FEPBP, need to be of same dim as NLIST
 Ninteg    = 30			# number of integration points for EP proj
 Ngrid     = 200			# number of points in the discretization
-nloops    = 10 			# number of loops through scheduling
-nEPloops  = 10 			# number of EP iterations
+nloops    = 1 			# number of loops through scheduling
+nEPloops  = 1 			# number of EP iterations
 nruns     = 1  			# number of time we run the whole thing
 #
 # Additional parameters for PBP
@@ -117,6 +117,52 @@ elseif expname == "demoChain"
     	s_init  = 4*obs_var
     end
 end
+
+if expname == "demoImg"
+    obs        = readdlm("ex_squareNoisy.dat")
+    obs_values = obs[:]
+    obs_var    = sqrt(var(obs_values))
+    s_init     = 4*obs_var
+    #
+    est_range = (-1,1.5)
+    #
+    m,n = 50,50
+    nnodes,nedges,edge_list = gm_grid(m,n)
+    # > declare scheduling
+    scheduling = gm_grid_scheduling(m,n)
+    #
+    HOMOG_EDGE_POT = true
+    node_potential = Normal(0,0.1)
+    #
+    function eval_edge_pot(from,to,xfrom,xto)
+        d = abs(xfrom-xto)
+        if length(d)==1
+            r = d
+            if d>0.25
+                v = exp(-0.25/0.035)
+                r = d*0+v
+            else
+                r = exp(-d/0.035)
+            end
+        else
+            r=copy(d)
+            for i =1:length(d)
+                if d[i]>0.25
+                    v = exp(-0.25/0.035)
+                    r[i] = d[i]*0+v
+                else
+                    r[i] = exp(-d[i]/0.035)
+                end
+            end
+        end
+        return r
+    end
+    #
+    function eval_node_pot(node,xnode)
+        return pdf(node_potential,obs_values[node]-xnode)
+    end
+end
+
 #
 # ======== RUN SIMULATIONS =========================================================================
 #

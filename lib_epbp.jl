@@ -41,6 +41,7 @@ function epbp_node_update(node,fastmode=false)
     # STEP 4a: EP PROJECTION - PtA (node)
     #
     node_cavity = q_moments[node,:]
+    
     eta_node    = get_node_eta(node)
     if eta_node[2]>node_cavity[2]
         node_cavity = normal_div(node_cavity,eta_node)

@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------------------------------
 #
 # EP_NODE_UPDATE(NODE):
-#   Update of a node following LBP on discretized grid.
+#   Update of a node following pure EP
 #
 function ep_node_update(node)
 	#
@@ -46,10 +46,10 @@ function ep_edge_proj(from,to)
 	eta_out     = get_edge_eta(from,to)
 	eta_in 	    = get_edge_eta(to,from)
 	#
-	if eta_out[2]>from_cavity[2]
+	if eta_in[2]>from_cavity[2]
 		from_cavity = normal_div(from_cavity,eta_in)
 	end
-	if eta_in[2]>to_cavity[2]
+	if eta_out[2]>to_cavity[2]
 		to_cavity = normal_div(to_cavity,eta_out)
 	end
 	#

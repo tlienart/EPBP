@@ -104,12 +104,13 @@ function doFEPBP()
     _start_fepbp = time()
     println("FEPBP sim ($expname::$N/$C) [run::$R]")
     # > pre-allocation of storage space
-    global particles   = zeros(nnodes,N)
-    global b_weights   = zeros(nnodes,N)
-    global b_evals     = zeros(nnodes,N)
-    global q_moments   = zeros(nnodes,2)
-    global e_weights   = zeros(2*nedges,N)
-    global eta_moments = zeros(2*nedges,2)
+    global particles   		= zeros(nnodes,N)
+    global b_weights   		= zeros(nnodes,N)
+    global b_evals   		= zeros(nnodes,N)
+    global q_moments   		= zeros(nnodes,2)
+    global e_weights   		= zeros(2*nedges,N)
+    global eta_moments 		= zeros(2*nedges,2)
+    global eta_node_moments = zeros(nnodes,2)
     #
     # > initial proposals & particles [!USER!]
     for node = 1:nnodes
