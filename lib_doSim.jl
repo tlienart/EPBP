@@ -215,6 +215,7 @@ function doEP()
         println(" [completed in ",get_time(_start_loop),"s; raw diff ",
                     round(norm(q_moments-old_moms),3),"]")
     end
-    #
     println("EP completed in ",get_time(_start_ep),"s.")
+    #
+    writecsv("$expname/$expname\_ep_qmoments.dat",q_moments)
 end

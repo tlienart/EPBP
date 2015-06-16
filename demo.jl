@@ -17,8 +17,8 @@ expname   = demoNames[1] # choice of demo
 # SIMULATIONS TO BE RUN
 #
 RELOAD = true  # re-generate everything
-LBPD   = false # LBP on deterministic grid
-EPBP   = false # EPBP
+LBPD   = true  # LBP on deterministic grid
+EPBP   = true  # EPBP
 FEPBP  = false # Fast-EPBP
 PBP    = false # PBP with MH sampling
 EP 	   = true  # straight EP
@@ -29,8 +29,8 @@ EP_PROJ_MLE  = false    # use MLE projection instead of KL-EP
 #
 # SIMULATION PARAMETERS [!USER!]
 #
-Nlist	  = [100,500]	# number of particles per node
-Clist 	  = [7,10]		# number of components for FEPBP
+Nlist	  = [100]	    # (list) number of particles per node
+Clist 	  = [7]		    # (list) number of components for FEPBP, need to be of same dim as NLIST
 Ninteg    = 30			# number of integration points for EP proj
 Ngrid     = 200			# number of points in the discretization
 nloops    = 10 			# number of loops through scheduling
