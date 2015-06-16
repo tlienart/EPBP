@@ -11,24 +11,7 @@ function ep_node_update(node)
 	#
 	# STEP 1: EP NODE POT PROJECTION
 	#
-	node_cav = q_moments[node,:]
-	eta_node = get_node_eta(node)
-	if bool(prod(eta_node))
-		node_cav = normal_div(node_cav,eta_node)
-	end
-	node_cav_distr = Normal(node_cav[1],node_cav[2])
-	eval_grid      = zeros(1,Ninteg)
-	for i=1:Ninteg
-		xi=integ_pts[i]
-		eval_grid[i] = pdf(node_cav_distr,xi) * eval_node_pot(node,xi)
-	end
-	node_marg = eval_grid/sum(eval_grid)
-	mom_node_marg = params(fit_mle(Normal,integ_pts,node_marg))
-	if mom_node_marg[2] < node_cav[2]
-		new_eta_node 			 = normal_div(mom_node_marg,node_cav)
-		q_moments[node,:] 		 = normal_prod(node_cav,new_eta_node)
-		eta_node_moments[node,:] = [new_eta_node[1] new_eta_node[2]]
-	end
+	ep_node_proj(node)
 	#
 	# STEP 2: EP EDGE POT PROJECTION
 	#
@@ -36,52 +19,75 @@ function ep_node_update(node)
 	K  		  = length(neighbors)
 	for k=1:K
 		neighb 	= neighbors[k]
-		# cavity distr
-		node_cav   = q_moments[node,:]
-		neighb_cav = q_moments[neighb,:]
-		eta_out    = get_edge_eta(node,neighb)
-		eta_in 	   = get_edge_eta(neighb,node)
+		ep_edge_proj(node,neighb)
+	end
+end
+
+function ep_node_proj(node)
+	node_cavity = q_moments[node,:]
+	eta_node 	= get_node_eta(node)
+	if eta_node[2]>node_cavity[2]
+		node_cavity = normal_div(node_cavity,eta_node)
+	end
+	node_eval = eval_node_pot(node,integ_pts)	#
+	try
+		tilted_eval  = node_eval .* pdf(Normal(node_cavity[1],node_cavity[2]),integ_pts)
+		tilted_node	 = params(fit_mle(Normal,integ_pts,tilted_eval))
+		new_eta_node = normal_div(tilted_node,node_cavity)
 		#
-		if bool(prod(eta_out))
-			node_cav = normal_div(node_cav,eta_out)
+		q_moments[node,:] 		 = normal_prod(new_eta_node,node_cavity)
+		eta_node_moments[node,:] = [m for m in new_eta_node]
+	end
+end
+
+function ep_edge_proj(from,to)
+	from_cavity = q_moments[from,:]
+	to_cavity   = q_moments[to,:]
+	eta_out     = get_edge_eta(from,to)
+	eta_in 	    = get_edge_eta(to,from)
+	#
+	if eta_out[2]>from_cavity[2]
+		from_cavity = normal_div(from_cavity,eta_in)
+	end
+	if eta_in[2]>to_cavity[2]
+		to_cavity = normal_div(to_cavity,eta_out)
+	end
+	#
+	from_cavity_d = Normal(from_cavity[1],from_cavity[2])
+	to_cavity_d   = Normal(to_cavity[1],to_cavity[2])
+	#
+	eval_grid = zeros(Ninteg,Ninteg)
+	for i=1:Ninteg
+		xi = integ_pts[i]
+		for j=1:Ninteg
+			xj = integ_pts[j]
+			eval_grid[i,j] = pdf(from_cavity_d,xi) *
+								pdf(to_cavity_d,xj) *
+									eval_edge_pot(from,to,xi,xj)
 		end
-		if bool(prod(eta_in))
-			neighb_cav = normal_div(neighb_cav,eta_in)
-		end
+	end
+	#
+	from_marg  = sum(eval_grid,2) # integrate out "to" (columns)
+	from_marg /= sum(from_marg)
+	to_marg    = sum(eval_grid,1) # integrate out "from" (rows)
+	to_marg   /= sum(to_marg)
+	#
+	try
+		from_marg_mom = params(fit_mle(Normal,integ_pts,from_marg))
 		#
-		node_cav_distr   = Normal(node_cav[1],node_cav[2])
-		neighb_cav_distr = Normal(neighb_cav[1],neighb_cav[2])
+		new_eta_in 		  = normal_div(from_marg_mom,from_cavity)
+		q_moments[from,:] = normal_prod(new_eta_in,from_cavity)
 		#
-		eval_grid = zeros(Ninteg,Ninteg)
-		for i=1:Ninteg
-			xi = integ_pts[i]
-			for j=1:Ninteg
-				xj = integ_pts[j]
-				eval_grid[i,j] = pdf(node_cav_distr,xi) *
-									pdf(neighb_cav_distr,xj) *
-										eval_edge_pot(node,neighb,xi,xj)
-			end
-		end
+		edge_idx 		  		= get_edge_idx(to,from)
+		eta_moments[edge_idx,:] = [m for m in new_eta_in]
+	end
+	try
+		to_marg_mom   = params(fit_mle(Normal,integ_pts,to_marg))
 		#
-		node_marg  	 = sum(eval_grid,2)
-		node_marg 	/= sum(node_marg)
-		neighb_marg  = sum(eval_grid,1)
-		neighb_marg /= sum(neighb_marg)
+		new_eta_out 	= normal_div(to_marg_mom,to_cavity)
+		q_moments[to,:] = normal_prod(new_eta_out,to_cavity)
 		#
-		mom_node_marg   = params(fit_mle(Normal,integ_pts,node_marg))
-		mom_neighb_marg = params(fit_mle(Normal,integ_pts,neighb_marg))
-		#
-		if mom_node_marg[2] < node_cav[2]
-			new_eta_in 				= normal_div(mom_node_marg,node_cav)
-			q_moments[node,:] 		= normal_prod(node_cav,new_eta_in)
-			edge_idx 				= get_edge_idx(neighb,node)
-			eta_moments[edge_idx,:] = [new_eta_in[1] new_eta_in[2]]
-		end
-		if mom_neighb_marg[2] < neighb_cav[2]
-			new_eta_out 			= normal_div(mom_neighb_marg,neighb_cav)
-			q_moments[neighb,:]		= normal_prod(neighb_cav,new_eta_out)
-			edge_idx 				= get_edge_idx(node,neighb)
-			eta_moments[edge_idx,:] = [new_eta_out[1] new_eta_out[2]]
-		end
+		edge_idx 				= get_edge_idx(from,to)
+		eta_moments[edge_idx,:] = [m for m in new_eta_out]
 	end
 end

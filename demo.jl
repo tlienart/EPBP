@@ -12,16 +12,16 @@ include("lib_ep.jl")
 include("lib_doSim.jl")
 #
 demoNames = ["demoGrid","demoChain"]
-expname   = demoNames[2] # choice of demo
+expname   = demoNames[1] # choice of demo
 #
 # SIMULATIONS TO BE RUN
 #
-RELOAD = false  # re-generate everything
+RELOAD = true  # re-generate everything
 LBPD   = false # LBP on deterministic grid
-EPBP   = true   # EPBP
-FEPBP  = false  # Fast-EPBP
-PBP    = false  # PBP with MH sampling
-EP 	   = false  # straight EP
+EPBP   = false # EPBP
+FEPBP  = false # Fast-EPBP
+PBP    = false # PBP with MH sampling
+EP 	   = true  # straight EP
 #
 # EP PROJECTION MODE, default is KL ignoring update if moments not valid.
 #
@@ -34,7 +34,7 @@ Clist 	  = [7,10]		# number of components for FEPBP
 Ninteg    = 30			# number of integration points for EP proj
 Ngrid     = 200			# number of points in the discretization
 nloops    = 10 			# number of loops through scheduling
-nEPloops  = 30 			# number of EP iterations
+nEPloops  = 10 			# number of EP iterations
 nruns     = 1  			# number of time we run the whole thing
 #
 # Additional parameters for PBP

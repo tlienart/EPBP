@@ -55,14 +55,11 @@ function epbp_node_update(node,fastmode=false)
     else
         try
             # <!DEV!> generalize (expoF)
-            tilted_eval       = node_eval .* pdf(Normal(node_cavity[1],node_cavity[2]),integ_pts)
-            tilted_node       = params(fit_mle(Normal,integ_pts,tilted_eval))
-            new_eta_node      = normal_div(tilted_node,node_cavity)
-            assert(~isnan(prod(new_eta_node)) & ~isinf(prod(new_eta_node)))
-            assert(new_eta_node[2]>0.1)
-            tmp_m             = normal_prod(new_eta_node,node_cavity)
-            q_moments[node,:] = tmp_m
-            # > store new eta
+            tilted_eval  = node_eval .* pdf(Normal(node_cavity[1],node_cavity[2]),integ_pts)
+            tilted_node  = params(fit_mle(Normal,integ_pts,tilted_eval))
+            new_eta_node = normal_div(tilted_node,node_cavity)
+            #
+            q_moments[node,:]        = normal_prod(new_eta_node,node_cavity)
             eta_node_moments[node,:] = [m for m in new_eta_node]
         end
     end
@@ -92,9 +89,8 @@ function epbp_node_update(node,fastmode=false)
                                 pdf(Normal(neighb_cavity[1],neighb_cavity[2]),integ_pts)
                 tilted_edge = params(fit_mle(Normal,integ_pts,tilted_eval))
                 eta_out_new = normal_div(tilted_edge,neighb_cavity)
-                tmp_m       = normal_prod(eta_out_new,neighb_cavity)
-                # > store new q & eta
-                q_moments[neighb,:] = tmp_m
+                #
+                q_moments[neighb,:] = normal_prod(eta_out_new,neighb_cavity)
                 eta_moments[eidx,:] = [m for m in eta_out_new]
             end
         end
