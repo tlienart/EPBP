@@ -4,16 +4,6 @@
 #
 # --------------------------------------------------------------------------------------------------
 #
-EP_PROJ_MLE  = false
-#
-# Accomodates: 1D, Normal approx (2 moments)
-# > should be flexible wrt these params in future
-#
-# things that should be determined by the user in this code
-# > everything related to declaration of graphical model
-# > how to initialize the proposals
-# >> check [!USER!]
-#
 include("lib_support.jl")
 include("lib_epbp.jl")
 include("lib_lbpd.jl")
@@ -21,55 +11,58 @@ include("lib_pbp.jl")
 include("lib_ep.jl")
 include("lib_doSim.jl")
 #
-RELOAD = true  # re-generate everything
-LBPD   = true  # LBP on determinstic grid
+expname = "demoGrid" # results will be stored in $expname/
+#
+# SIMULATIONS TO BE RUN
+#
+RELOAD = true   # re-generate everything
+LBPD   = true   # LBP on deterministic grid
 EPBP   = true   # EPBP
 FEPBP  = false  # Fast-EPBP
 PBP    = false  # PBP with MH sampling
 EP 	   = false  # straight EP
 #
-expname = "demoGrid"
+# EP PROJECTION MODE, default is KL ignoring update if moments not valid.
+#
+EP_PROJ_MLE  = false    # use MLE projection instead of KL-EP
 #
 # SIMULATION PARAMETERS [!USER!]
 #
-Nlist	 = [100]		    # number of particles per node
-Clist 	 = [10]				# number of components for FEPBP
-Ninteg   = 30				# number of integration points for EP proj
-Ngrid    = 200				# number of points in the discretization
-nloops   = 10 				# number of loops through scheduling
-nEPloops = 30 				# number of EP iterations
-nruns    = 1  				# number of time we run the whole thing
+Nlist	  = [50,100]	    # number of particles per node
+Clist 	  = [7,10]		# number of components for FEPBP
+Ninteg    = 30			# number of integration points for EP proj
+Ngrid     = 200			# number of points in the discretization
+nloops    = 10 			# number of loops through scheduling
+nEPloops  = 30 			# number of EP iterations
+nruns     = 1  			# number of time we run the whole thing
+est_range = (-5,15) 	# > estimated 1D-range for integration
+#
+# Additional parameters for PBP
 #
 MHIter 	   = 20 		  	# number of MH iterations
 MHProposal = Normal(0,.1) 	# form of the MH proposal
 #
-est_range = (-5,15) 		# > estimated range for integration
-#
 # DECLARE GRAPHICAL MODEL [!USER!]
 #
-# > declare underlying structure (cf. LIB_SUPPORT for eg: Grid)
+# > Declare a 5x5 grid
 m,n = 5,5
 nnodes,nedges,edge_list = gm_grid(m,n)
 # > declare scheduling
 scheduling = gm_grid_scheduling(m,n)
 # > declare edge and node potential
-HOMOG_EDGE_POT = true # if edge pot is symmetric & the same everywhere (eg: image)
-#
+HOMOG_EDGE_POT = true # edge pot is symmetric & same everywhere (eg: image)
+# > side functions to define edge/node potential
 node_potential = MixtureModel([Normal(-2,1),Gumbel(2,1.3)],[0.6,0.4])
 edge_potential = Laplace(0,2)
-#
+# > definition of edge/node potential functions
 eval_edge_pot(from,to,xfrom,xto) = pdf(edge_potential,xfrom-xto)
 eval_node_pot(node,xnode)        = pdf(node_potential,obs_values[node]-xnode)
-#
-# > sampling from MH?
+# > (PBP) sampling from MH?
 sampleMHP(old) = old+rand(MHProposal,N)'
-#
 # > initial values on the graph
 orig_values = zeros(nnodes,1) + 2
 #
-# ==================================================================================================
 # ======== RUN SIMULATIONS =========================================================================
-# ==================================================================================================
 #
 # make directory to store stuff
 if ~isdir(expname)
