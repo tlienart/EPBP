@@ -1,6 +1,4 @@
 #
-# --------------------------------------------------------
-#
 # EPBP_NODE_UPDATE(NODE):
 #   Update of a node following the BP/EP method
 #
@@ -49,7 +47,7 @@ function epbp_node_update(node,fastmode=false)
     end
     node_eval   = eval_node_pot(node,integ_pts) # <!DEV!> could be recycled from epbp_belief comp
     #
-    if EP_PROJ_MLE | DEB_MIX
+    if EP_PROJ_MLE
         new_eta_node = params(fit_mle(Normal,integ_pts,node_eval))
         tmp_m        = normal_prod(new_eta_node,node_cavity)
         q_moments[node,:] = tmp_m
@@ -93,14 +91,10 @@ function epbp_node_update(node,fastmode=false)
                 tilted_eval = outmess_eval .*
                                 pdf(Normal(neighb_cavity[1],neighb_cavity[2]),integ_pts)
                 tilted_edge = params(fit_mle(Normal,integ_pts,tilted_eval))
-#                println(tilted_edge[2]," -- ",neighb_cavity[2])
                 eta_out_new = normal_div(tilted_edge,neighb_cavity)
-#                println(eta_out_new)
-#                assert(~isnan(prod(eta_out_new)) & ~isinf(prod(eta_out_new)))
-#               assert(eta_out_new[2]>0.1)
                 tmp_m       = normal_prod(eta_out_new,neighb_cavity)
+                # > store new q & eta
                 q_moments[neighb,:] = tmp_m
-                # > store new eta
                 eta_moments[eidx,:] = [m for m in eta_out_new]
             end
         end
