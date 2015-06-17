@@ -12,46 +12,43 @@ include("lib_ep.jl")
 include("lib_doSim.jl")
 #
 demoNames = ["demoGrid","demoChain","demoImg"]
-expname   = demoNames[3] # choice of demo (reason for this syntax is to show possibilities)
+expname   = demoNames[1] # choice of demo (reason for this syntax is to show possibilities)
 #
-# SIMULATIONS TO BE RUN
-#
-RELOAD = false  # re-generate everything
-LBPD   = false  # LBP on deterministic grid
-EPBP   = false  # EPBP
-FEPBP  = true  # Fast-EPBP
-PBP    = false  # PBP with MH sampling
-EP 	   = false   # straight EP
-#
-# VERBOSITY
-NODE_PROGRESS = true
-#
-#
-# EP PROJECTION MODE, default is KL ignoring update if moments not valid.
-#
-EP_PROJ_MLE  = false    # use MLE projection instead of KL-EP
-#
-# SIMULATION PARAMETERS [!USER!]
-#
-Nlist	  = [50]	    # (list) number of particles per node
-Clist 	  = [7]		    # (list) number of components for FEPBP, need to be of same dim as NLIST
-Ninteg    = 30			# number of integration points for EP proj
-Ngrid     = 200			# number of points in the discretization
-nloops    = 1 			# number of loops through scheduling
-nEPloops  = 5 			# number of EP iterations
-nruns     = 1  			# number of time we run the whole thing
-#
-# Additional parameters for PBP
-#
-MHIter 	   = 20 		  	# number of MH iterations
-MHProposal = Normal(0,.1) 	# form of the MH proposal
-#
-# --------------- --------------- --------------- --------------- --------------- ---------------
-#
-# ======================
-# == DEMOGRID ==========
-# ======================
+# ==================================================================================================
 if expname == "demoGrid"
+    #
+    # SIMULATIONS TO BE RUN
+    #
+    RELOAD = true  # re-generate everything
+    LBPD   = true  # LBP on deterministic grid
+    EPBP   = true  # EPBP
+    FEPBP  = false  # Fast-EPBP
+    PBP    = false  # PBP with MH sampling
+    EP 	   = true   # straight EP
+    #
+    # VERBOSITY
+    NODE_PROGRESS = false
+    #
+    # SIMULATION PARAMETERS [!USER!]
+    #
+    Nlist	  = [100,200] # (list) number of particles per node
+    Clist 	  = [7,10]    # (list) number of components for FEPBP, need to be of same dim as NLIST
+    Ninteg    = 30		  # number of integration points for EP proj
+    Ngrid     = 200		  # number of points in the discretization
+    nloops    = 10 		  # number of loops through scheduling
+    nEPloops  = 25 		  # number of EP iterations
+    nruns     = 1  		  # number of time we run the whole thing
+    #
+    # EP PROJECTION MODE, default is KL ignoring update if moments not valid.
+    EP_PROJ_MLE  = false    # use MLE projection instead of KL-EP
+    #
+    # Additional parameters for PBP
+    #
+    MHIter 	   = 20 		  	# number of MH iterations
+    MHProposal = Normal(0,.1) 	# form of the MH proposal
+    #
+    # DECLARE GM
+    #
     # > Declare a 5x5 grid
     m,n = 5,5
     nnodes,nedges,edge_list = gm_grid(m,n)
@@ -81,10 +78,41 @@ if expname == "demoGrid"
     	obs_var = sqrt(var(obs_values))
     	s_init  = 4*obs_var
     end
-# =======================
-# == DEMOCHAIN ==========
-# =======================
+# ==================================================================================================
 elseif expname == "demoChain"
+    #
+    # SIMULATIONS TO BE RUN
+    #
+    RELOAD = true  # re-generate everything
+    LBPD   = true  # LBP on deterministic grid
+    EPBP   = true  # EPBP
+    FEPBP  = false  # Fast-EPBP
+    PBP    = false  # PBP with MH sampling
+    EP 	   = true   # straight EP
+    #
+    # VERBOSITY
+    NODE_PROGRESS = false
+    #
+    # SIMULATION PARAMETERS [!USER!]
+    #
+    Nlist	  = [100,200] # (list) number of particles per node
+    Clist 	  = [7,10]    # (list) number of components for FEPBP, need to be of same dim as NLIST
+    Ninteg    = 30		  # number of integration points for EP proj
+    Ngrid     = 200		  # number of points in the discretization
+    nloops    = 10 		  # number of loops through scheduling
+    nEPloops  = 25 		  # number of EP iterations
+    nruns     = 1  		  # number of time we run the whole thing
+    #
+    # EP PROJECTION MODE, default is KL ignoring update if moments not valid.
+    EP_PROJ_MLE  = false    # use MLE projection instead of KL-EP
+    #
+    # Additional parameters for PBP
+    #
+    MHIter 	   = 20 		  	# number of MH iterations
+    MHProposal = Normal(0,.1) 	# form of the MH proposal
+    #
+    # DECLARE GM
+    #
     T = 5
     nnodes,nedges,edge_list = gm_chain(T)
     # > declare scheduling
@@ -124,16 +152,48 @@ elseif expname == "demoChain"
     	obs_var = sqrt(var(obs_values))
     	s_init  = 4*obs_var
     end
-end
-
-if expname == "demoImg"
+# ==================================================================================================
+elseif expname == "demoImg"
+    #
+    # SIMULATIONS TO BE RUN
+    #
+    RELOAD = false  # re-generate everything
+    LBPD   = false  # LBP on deterministic grid
+    EPBP   = false  # EPBP
+    FEPBP  = true  # Fast-EPBP
+    PBP    = false  # PBP with MH sampling
+    EP 	   = false   # straight EP
+    #
+    # VERBOSITY
+    NODE_PROGRESS = false
+    #
+    # SIMULATION PARAMETERS [!USER!]
+    #
+    Nlist	  = [70]	    # (list) number of particles per node
+    Clist 	  = [5]		    # (list) number of components for FEPBP, need to be of same dim as NLIST
+    Ninteg    = 50			# number of integration points for EP proj
+    Ngrid     = 200			# number of points in the discretization
+    nloops    = 2 			# number of loops through scheduling
+    nEPloops  = 3 			# number of EP iterations
+    nruns     = 1  			# number of time we run the whole thing
+    #
+    # EP PROJECTION MODE, default is KL ignoring update if moments not valid.
+    EP_PROJ_MLE  = false    # use MLE projection instead of KL-EP
+    #
+    # Additional parameters for PBP
+    #
+    MHIter 	   = 20 		  	# number of MH iterations
+    MHProposal = Normal(0,.1) 	# form of the MH proposal
+    #
+    # DECLARE GM
+    #
     obs        = readdlm("ex_squareNoisy.dat")
     obs_values = obs[:]
     obs_var    = sqrt(var(obs_values))
     s_init     = 4*obs_var
     #
     est_range = (-1,1.5)
-    sigma_thresh = 0.001
+    sigma_thresh = 0.01
     #
     m,n = 50,50
     nnodes,nedges,edge_list = gm_grid(m,n)
