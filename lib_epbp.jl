@@ -41,7 +41,7 @@ function epbp_node_update(node,fastmode=false)
     # STEP 4a: EP PROJECTION - PtA (node)
     #
     node_cavity = q_moments[node,:]
-    
+
     eta_node    = get_node_eta(node)
     if eta_node[2]>node_cavity[2]
         node_cavity = normal_div(node_cavity,eta_node)
@@ -51,17 +51,22 @@ function epbp_node_update(node,fastmode=false)
     if EP_PROJ_MLE
         new_eta_node = params(fit_mle(Normal,integ_pts,node_eval))
         tmp_m        = normal_prod(new_eta_node,node_cavity)
-        q_moments[node,:] = tmp_m
-        eta_node_moments[node,:] = [m for m in new_eta_node]
+        if tmp_m[2] > sigma_thresh
+            q_moments[node,:] = tmp_m
+            eta_node_moments[node,:] = [m for m in new_eta_node]
+        end
     else
         try
             # <!DEV!> generalize (expoF)
             tilted_eval  = node_eval .* pdf(Normal(node_cavity[1],node_cavity[2]),integ_pts)
             tilted_node  = params(fit_mle(Normal,integ_pts,tilted_eval))
             new_eta_node = normal_div(tilted_node,node_cavity)
+            tmp_m        = normal_prod(new_eta_node,node_cavity)
             #
-            q_moments[node,:]        = normal_prod(new_eta_node,node_cavity)
-            eta_node_moments[node,:] = [m for m in new_eta_node]
+            if tmp_m[2] > sigma_thresh
+                q_moments[node,:]        = tmp_m
+                eta_node_moments[node,:] = [m for m in new_eta_node]
+            end
         end
     end
     #
@@ -81,18 +86,24 @@ function epbp_node_update(node,fastmode=false)
         #
         if EP_PROJ_MLE
             eta_out_new         = params(fit_mle(Normal,integ_pts,outmess_eval))
-            q_moments[neighb,:] = normal_prod(neighb_cavity,eta_out_new)
-            # > store new eta
-            eta_moments[eidx,:] = [m for m in eta_out_new]
+            tmp_m               = normal_prod(neighb_cavity,eta_out_new)
+            #
+            if tmp_m[2] > sigma_thresh
+                q_moments[neighb,:] = tmp_m
+                eta_moments[eidx,:] = [m for m in eta_out_new]
+            end
         else
             try
                 tilted_eval = outmess_eval .*
                                 pdf(Normal(neighb_cavity[1],neighb_cavity[2]),integ_pts)
                 tilted_edge = params(fit_mle(Normal,integ_pts,tilted_eval))
                 eta_out_new = normal_div(tilted_edge,neighb_cavity)
+                tmp_m       = normal_prod(eta_out_new,neighb_cavity)
                 #
-                q_moments[neighb,:] = normal_prod(eta_out_new,neighb_cavity)
-                eta_moments[eidx,:] = [m for m in eta_out_new]
+                if tmp_m[2] > sigma_thresh
+                    q_moments[neighb,:] = tmp_m
+                    eta_moments[eidx,:] = [m for m in eta_out_new]
+                end
             end
         end
     end

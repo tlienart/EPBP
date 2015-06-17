@@ -8,21 +8,14 @@
 #   Update of a node following pure EP
 #
 function ep_node_update(node)
-	#
 	# STEP 1: EP NODE POT PROJECTION
-	#
 	ep_node_proj(node)
-	#
 	# STEP 2: EP EDGE POT PROJECTION
-	#
-	neighbors = get_neighbors(node)
-	K  		  = length(neighbors)
-	for k=1:K
-		neighb 	= neighbors[k]
+	for neighb in get_neighbors(node)
 		ep_edge_proj(node,neighb)
 	end
 end
-
+#
 function ep_node_proj(node)
 	node_cavity = q_moments[node,:]
 	eta_node 	= get_node_eta(node)
@@ -35,8 +28,11 @@ function ep_node_proj(node)
 		tilted_node	 = params(fit_mle(Normal,integ_pts,tilted_eval))
 		new_eta_node = normal_div(tilted_node,node_cavity)
 		#
-		q_moments[node,:] 		 = normal_prod(new_eta_node,node_cavity)
-		eta_node_moments[node,:] = [m for m in new_eta_node]
+		tmp_mom = normal_prod(new_eta_node,node_cavity)
+		if tmp_mom[2]>0.01
+			q_moments[node,:] 		 = tmp_mom
+			eta_node_moments[node,:] = [m for m in new_eta_node]
+		end
 	end
 end
 
@@ -74,20 +70,24 @@ function ep_edge_proj(from,to)
 	#
 	try
 		from_marg_mom = params(fit_mle(Normal,integ_pts,from_marg))
+		new_eta_in 	  = normal_div(from_marg_mom,from_cavity)
+		tmp_mom 	  = normal_prod(new_eta_in,from_marg_mom)
 		#
-		new_eta_in 		  = normal_div(from_marg_mom,from_cavity)
-		q_moments[from,:] = normal_prod(new_eta_in,from_cavity)
-		#
-		edge_idx 		  		= get_edge_idx(to,from)
-		eta_moments[edge_idx,:] = [m for m in new_eta_in]
+		if tmp_mom[2] > sigma_thresh
+			q_moments[from,:] 		= tmp_mom
+			edge_idx 		  		= get_edge_idx(to,from)
+			eta_moments[edge_idx,:] = [m for m in new_eta_in]
+		end
 	end
 	try
-		to_marg_mom   = params(fit_mle(Normal,integ_pts,to_marg))
+		to_marg_mom = params(fit_mle(Normal,integ_pts,to_marg))
+		new_eta_out	= normal_div(to_marg_mom,to_cavity)
+		tmp_mom 	= normal_prod(new_eta_out,to_marg_mom)
 		#
-		new_eta_out 	= normal_div(to_marg_mom,to_cavity)
-		q_moments[to,:] = normal_prod(new_eta_out,to_cavity)
-		#
-		edge_idx 				= get_edge_idx(from,to)
-		eta_moments[edge_idx,:] = [m for m in new_eta_out]
+		if tmp_mom[2] > sigma_thresh
+			q_moments[to,:] 		= tmp_mom
+			edge_idx 				= get_edge_idx(from,to)
+			eta_moments[edge_idx,:] = [m for m in new_eta_out]
+		end
 	end
 end
