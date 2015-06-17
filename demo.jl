@@ -12,29 +12,33 @@ include("lib_ep.jl")
 include("lib_doSim.jl")
 #
 demoNames = ["demoGrid","demoChain","demoImg"]
-expname   = demoNames[3] # choice of demo
+expname   = demoNames[3] # choice of demo (reason for this syntax is to show possibilities)
 #
 # SIMULATIONS TO BE RUN
 #
 RELOAD = false  # re-generate everything
 LBPD   = false  # LBP on deterministic grid
 EPBP   = false  # EPBP
-FEPBP  = false # Fast-EPBP
-PBP    = false # PBP with MH sampling
-EP 	   = true  # straight EP
+FEPBP  = true  # Fast-EPBP
+PBP    = false  # PBP with MH sampling
+EP 	   = false   # straight EP
+#
+# VERBOSITY
+NODE_PROGRESS = true
+#
 #
 # EP PROJECTION MODE, default is KL ignoring update if moments not valid.
 #
-EP_PROJ_MLE  = true    # use MLE projection instead of KL-EP
+EP_PROJ_MLE  = false    # use MLE projection instead of KL-EP
 #
 # SIMULATION PARAMETERS [!USER!]
 #
 Nlist	  = [50]	    # (list) number of particles per node
-Clist 	  = [5]		    # (list) number of components for FEPBP, need to be of same dim as NLIST
+Clist 	  = [7]		    # (list) number of components for FEPBP, need to be of same dim as NLIST
 Ninteg    = 30			# number of integration points for EP proj
 Ngrid     = 200			# number of points in the discretization
 nloops    = 1 			# number of loops through scheduling
-nEPloops  = 1 			# number of EP iterations
+nEPloops  = 5 			# number of EP iterations
 nruns     = 1  			# number of time we run the whole thing
 #
 # Additional parameters for PBP
@@ -66,7 +70,8 @@ if expname == "demoGrid"
     # > initial values on the graph
     orig_values = zeros(nnodes,1) + 2
     #
-    est_range   = (-5,15) 	# > estimated 1D-range for integration
+    est_range    = (-5,15) 	# > estimated 1D-range for integration
+    sigma_thresh = 0.01
     if RELOAD
     	# > generate observations
     	obs_values = orig_values + rand(node_potential,nnodes)
@@ -97,6 +102,9 @@ elseif expname == "demoChain"
     #
     # > sampling from MH?
     sampleMHP(old) = old+rand(MHProposal,N)'
+    #
+    est_range    = (-10,10) 	# > estimated 1D-range for integration
+    sigma_thresh = 0.01
     # > generate observations
     if RELOAD
     	orig_values = zeros(nnodes,1)
@@ -125,6 +133,7 @@ if expname == "demoImg"
     s_init     = 4*obs_var
     #
     est_range = (-1,1.5)
+    sigma_thresh = 0.001
     #
     m,n = 50,50
     nnodes,nedges,edge_list = gm_grid(m,n)

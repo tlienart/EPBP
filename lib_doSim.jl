@@ -135,6 +135,9 @@ function doFEPBP()
         print(">loop: ",loop)
         _start_loop = time()
         for i=1:length(scheduling)
+            if NODE_PROGRESS
+                println(">> node >> ", scheduling[i])
+            end
             epbp_node_update(scheduling[i],true) # with fastmode
         end
         println(" [completed in ",get_time(_start_loop),"s]")
@@ -210,7 +213,10 @@ function doEP()
         print(">loop ",loop)
         _start_loop = time()
         old_moms 	= copy(q_moments)
-        for i=1:length(scheduling)
+        for i = 1:length(scheduling)
+            if NODE_PROGRESS
+                println(">> node >> ", scheduling[i])
+            end
             ep_node_update(scheduling[i])
         end
         println(" [completed in ",get_time(_start_loop),"s; raw diff ",
@@ -218,5 +224,5 @@ function doEP()
     end
     println("EP completed in ",get_time(_start_ep),"s.")
     #
-    writecsv("$expname/$expname\_ep_qmoments.dat",q_moments)
+    writecsv("$expname/$expname\_ep_qmoments_nepl$nEPloops.dat",q_moments)
 end
