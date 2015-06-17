@@ -178,8 +178,14 @@ function doPBP()
     for loop=1:nloops
         print(">loop: ",loop)
         _start_loop = time()
-        for i=1:length(scheduling)
-            pbp_node_update(scheduling[i]) # with fastmode
+        if PARACHAINS
+            for i=1:length(scheduling)
+                pbp_node_update(scheduling[i])
+            end
+        else
+            for i=1:length(scheduling)
+                pbp_node_update2(scheduling[i])
+            end
         end
         println(" [completed in ",get_time(_start_loop),"s]")
     end

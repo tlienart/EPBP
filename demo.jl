@@ -19,33 +19,34 @@ if expname == "demoGrid"
     #
     # SIMULATIONS TO BE RUN
     #
-    RELOAD = true  # re-generate everything
-    LBPD   = true  # LBP on deterministic grid
-    EPBP   = true  # EPBP
+    RELOAD = false  # re-generate everything
+    LBPD   = false  # LBP on deterministic grid
+    EPBP   = false  # EPBP
     FEPBP  = false  # Fast-EPBP
-    PBP    = false  # PBP with MH sampling
-    EP 	   = true   # straight EP
+    PBP    = true  # PBP with MH sampling
+    EP 	   = false   # straight EP
     #
     # VERBOSITY
     NODE_PROGRESS = false
     #
     # SIMULATION PARAMETERS [!USER!]
     #
-    Nlist	  = [100,200] # (list) number of particles per node
-    Clist 	  = [7,10]    # (list) number of components for FEPBP, need to be of same dim as NLIST
+    Nlist	  = [50] # (list) number of particles per node
+    Clist 	  = [7]    # (list) number of components for FEPBP, need to be of same dim as NLIST
     Ninteg    = 30		  # number of integration points for EP proj
     Ngrid     = 200		  # number of points in the discretization
     nloops    = 10 		  # number of loops through scheduling
     nEPloops  = 25 		  # number of EP iterations
     nruns     = 1  		  # number of time we run the whole thing
     #
-    # EP PROJECTION MODE, default is KL ignoring update if moments not valid.
+    # EP PROJECTION MODE, default is KL ignoring update if moments not valid
     EP_PROJ_MLE  = false    # use MLE projection instead of KL-EP
     #
     # Additional parameters for PBP
     #
     MHIter 	   = 20 		  	# number of MH iterations
-    MHProposal = Normal(0,.1) 	# form of the MH proposal
+    MHProposal = Normal(0,1) 	# form of the MH proposal
+    PARACHAINS = true
     #
     # DECLARE GM
     #
@@ -64,6 +65,9 @@ if expname == "demoGrid"
     eval_node_pot(node,xnode)        = pdf(node_potential,obs_values[node]-xnode)
     # > (PBP) sampling from MH?
     sampleMHP(old) = old+rand(MHProposal,N)'
+    LMHCHAIN = 1000
+    ENDCHUNK = 300
+    sampleMHP2(old) = old+rand(Normal(0,0.1),1)
     # > initial values on the graph
     orig_values = zeros(nnodes,1) + 2
     #
@@ -110,6 +114,7 @@ elseif expname == "demoChain"
     #
     MHIter 	   = 20 		  	# number of MH iterations
     MHProposal = Normal(0,.1) 	# form of the MH proposal
+    PARACHAINS = true
     #
     # DECLARE GM
     #
@@ -184,6 +189,7 @@ elseif expname == "demoImg"
     #
     MHIter 	   = 20 		  	# number of MH iterations
     MHProposal = Normal(0,.1) 	# form of the MH proposal
+    PARACHAINS = true
     #
     # DECLARE GM
     #
