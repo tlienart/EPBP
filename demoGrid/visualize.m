@@ -1,6 +1,6 @@
 expname = 'demoGrid';
 Ngrid   = num2str(200);
-Np 		= num2str(100);
+Np 		= num2str(200);
 Nc 		= num2str(10);
 runn    = num2str(1);
 lbpd_grid    = load([expname,'_lbpd_grid_np',Ngrid,'.dat']);
