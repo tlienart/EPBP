@@ -2,7 +2,9 @@
 
 ## Disclaimer
 
-This project is currently under very heavy development [as of June 2015] and should be considered as such. The code is currently released purely for demonstration purpose and is not claimed to be efficient or optimal. If you happen to try it and run into an issue, please let me know, I'll be happy to discuss it and try to help you out.
+This project is still being developped [as of June 2015] and should be considered as such. The code is released mainly for demonstration purpose and is not claimed to be optimal. I'd however be happy to hear you feedback if you happen to use it.
+
+The release "1DN" reproduces our original results and should allow one to try the method on an arbitrary graphical model with 1D continuous random variables. 
 
 ## Contact
 
