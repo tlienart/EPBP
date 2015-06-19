@@ -8,4 +8,4 @@ The release [1DN](https://github.com/tlienart/EPBP) reproduces our original resu
 
 ## Contact
 
-- lienart@stats.ox.ac.uk
+- lienart <> stats.ox.ac.uk
