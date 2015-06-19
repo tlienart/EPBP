@@ -8,4 +8,4 @@ The release "1DN" reproduces our original results and should allow one to try th
 
 ## Contact
 
-- [(thibaut.lienart@stats.ox.ac.uk)]
+- lienart@stats.ox.ac.uk
