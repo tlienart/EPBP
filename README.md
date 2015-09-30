@@ -2,7 +2,7 @@
 
 This is an implementation of the EPBP algorithm (see the [*pre-print*](http://arxiv.org/abs/1506.05934)).
 
-This code is released under the MIT license (i.e., feel free to do whatever you want with it) however, please do reach out and let me know if you end up using it as it would be helpful to have feedback on it. 
+This code is released under the MIT license (i.e., feel free to do whatever you want with it) however, please do reach out and let me know if you end up using it as it would be helpful to have feedback on it.
 
 ## Disclaimer
 
@@ -15,7 +15,7 @@ The release [1DN](https://github.com/tlienart/EPBP) reproduces our original resu
 
 - lienart <> stats.ox.ac.uk
 
-## How to use 
+## How to use
 (section under construction...)
 
 The relevant files are:
@@ -31,7 +31,7 @@ The relevant files are:
 
 ### Definition of an MRF
 
-Two standard Graphical Models can be generated directly: the grid and the chain (see `demo.jl`). For another abritrary structure, the user can enter a list corresponding to the edges (cf. `demoTree` in `demo.jl`). In practice, the following variables need to be defined:
+Two standard Graphical Models can be generated directly: the grid and the chain (see `demo.jl`). For another arbitrary structure, the user can enter a list corresponding to the edges (cf. `demoTree` in `demo.jl`). In practice, the following variables need to be defined:
 
 - `nnodes`: number of nodes
 - `nedges`: number of edges
@@ -43,4 +43,4 @@ nnodes = 2
 nedges = 1
 edge_list = [1 2; 2 1]
 ```
-note that the reverse edge need to be explicitly mentioned as well. 
+note that the reverse edge need to be explicitly mentioned as well.
