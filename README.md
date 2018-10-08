@@ -1,6 +1,6 @@
 # EPBP
 
-This is an implementation of the EPBP algorithm (see the [*article*](http://www.stats.ox.ac.uk/~lienart/epbp.pdf)).
+This is an implementation of the EPBP algorithm (see the [*article*](https://tlienart.github.io/assets/misc/pdf/epbp.pdf)).
 
 This code is released under the MIT license (i.e., feel free to do whatever you want with it) however, please do reach out and let me know if you end up using it as it would be helpful to have feedback on it.
 
